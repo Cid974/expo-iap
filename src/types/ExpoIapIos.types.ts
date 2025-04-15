@@ -133,4 +133,5 @@ export type ProductPurchaseIos = PurchaseBase & {
   };
   priceIos?: number;
   currencyIos?: string;
+  jwsRepresentation?: string;
 };
