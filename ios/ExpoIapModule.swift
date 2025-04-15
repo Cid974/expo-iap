@@ -16,7 +16,7 @@ struct IapEvent {
 }
 
 @available(iOS 15.0, *)
-func serializeTransaction(_ transaction: Transaction) -> [String: Any?] {
+func serializeTransaction(_ transaction: Transaction, jwsRepresentation: String? = nil) -> [String: Any?] {
     let isSubscription =
         transaction.productType.rawValue.lowercased().contains("renewable")
         || transaction.expirationDate != nil
@@ -70,6 +70,10 @@ func serializeTransaction(_ transaction: Transaction) -> [String: Any?] {
         "transactionReasonIos": transactionReasonIos,
     ]
 
+    if (jwsRepresentation != nil) {
+        purchaseMap["jwsRepresentation"] = jwsRepresentation
+    }
+    
     if #available(iOS 16.0, *) {
         purchaseMap["environmentIos"] = transaction.environment.rawValue
     }
@@ -361,7 +365,7 @@ public class ExpoIapModule: Module {
                             return nil
                         } else {
                             self.transactions[String(transaction.id)] = transaction
-                            let serialized = serializeTransaction(transaction)
+                            let serialized = serializeTransaction(transaction, jwsRepresentation: verification.jwsRepresentation)
                             self.sendEvent(IapEvent.PurchaseUpdated, serialized)
                             return serialized
                         }
